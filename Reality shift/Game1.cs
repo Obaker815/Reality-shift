@@ -1,11 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace Reality_shift
 {
     public class Game1 : Game
     {
+        private Texture2D CurrentLevel;
+        public Color[,] level;
+
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _playerSpriteSheet;
@@ -23,6 +27,7 @@ namespace Reality_shift
 
         protected override void Initialize()
         {
+
             Texture2D playerTexture = Content.Load<Texture2D>("blobby");
             player = new Player(playerTexture, new Vector2(50, 50), 140, 80, 2, 0.4f);
 
@@ -55,6 +60,42 @@ namespace Reality_shift
             _spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        public void LoadLevel(string name)
+        {
+            CurrentLevel = Content.Load<Texture2D>(name);
+            level = ConvertTextureTo2DArray(CurrentLevel);
+        }
+
+
+        public Color[,] ConvertTextureTo2DArray(Texture2D texture)
+        {
+            // Ensure the texture is not null
+            if (texture == null)
+                throw new ArgumentNullException(nameof(texture));
+
+            // Get the texture width and height
+            int width = texture.Width;
+            int height = texture.Height;
+
+            // Create a 2D array to hold the colors
+            Color[,] colorArray = new Color[width, height];
+
+            // Get the pixel data from the texture
+            Color[] pixelData = new Color[width * height];
+            texture.GetData(pixelData);
+
+            // Fill the 2D array with color data
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    colorArray[x, y] = pixelData[x + y * width];
+                }
+            }
+
+            return colorArray;
         }
     }
 }
