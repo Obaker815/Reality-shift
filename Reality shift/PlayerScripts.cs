@@ -14,7 +14,6 @@ public class Player
 {
     private Texture2D spritesheet;
     private Vector2 position;
-
     private Vector2 velocity;
 
     private int frameWidth;
@@ -33,6 +32,10 @@ public class Player
     private bool isFacingRight;
     private bool grounded;
 
+    // Camera variables
+    private Vector2 cameraOffset;
+    private const float ScrollThreshold = 100f; // Pixels from the edge to trigger scrolling
+
     public Player(Texture2D texture, Vector2 startPosition, int frameWidth, int frameHeight, int totalFrames, float frameTime)
     {
         this.spritesheet = texture;
@@ -47,6 +50,7 @@ public class Player
         this.CurrentState = PlayerState.Idle;
         this.isFacingRight = true;
         this.grounded = false;
+        this.cameraOffset = Vector2.Zero; // Initialize camera offset
     }
 
     public void Update(GameTime gameTime)
@@ -151,8 +155,6 @@ public class Player
         {
             position.X = nextPosition.X;
         }
-        // Removed the resetting of X velocity on landing
-        // velocity.X = 0; // Remove this line to retain X velocity
 
         if (!collisionY)
         {
@@ -205,27 +207,45 @@ public class Player
             }
             elapsedTime = 0f; // Reset the timer
         }
+
+        // Handle screen scrolling
+        HandleScrolling();
     }
 
-
-
-
+    private void HandleScrolling()
+    {
+        // Check if the player is within 100 pixels from the left or right edge
+        if (position.X < cameraOffset.X + ScrollThreshold)
+        {
+            cameraOffset.X = position.X - ScrollThreshold; // Move camera left
+        }
+        else if (position.X > cameraOffset.X + (800 - ScrollThreshold)) // Assuming screen width is 800 pixels
+        {
+            cameraOffset.X = position.X + ScrollThreshold - 800; // Move camera right
+        }
+    }
 
     public void Draw(SpriteBatch spriteBatch)
     {
+        // Draw the player with the camera offset applied
+        spriteBatch.Draw(spritesheet, position - cameraOffset, GetSourceRectangle(), Color.White);
+    }
+
+    private Rectangle GetSourceRectangle()
+    {
         // Calculate the source rectangle for the current frame
         int column = (int)CurrentState; // Use enum value to determine column
-        Rectangle sourceRectangle = new Rectangle(column * frameWidth + 1, currentFrame * frameHeight + 1, frameWidth - 2, frameHeight - 2);
-
-        // Determine sprite effect based on the facing direction
-        SpriteEffects spriteEffect = isFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
-
-        // Draw the current frame of the player with the appropriate sprite effect
-        spriteBatch.Draw(spritesheet, position, sourceRectangle, Color.White, 0f, Vector2.Zero, Vector2.One, spriteEffect, 0f);
+        return new Rectangle(column * frameWidth + 1, currentFrame * frameHeight + 1, frameWidth - 2, frameHeight - 2);
     }
 
     public Vector2 Position
     {
         get { return position; }
+    }
+
+    // Add a Velocity property for external access
+    public Vector2 Velocity
+    {
+        get { return velocity; }
     }
 }
