@@ -47,18 +47,30 @@ public class Player
 
     public void Update(GameTime gameTime)
     {
+
+        // handle friction
+        if (velocity.X > 0f) velocity.X -= 0.2f;
+        if (velocity.X < 0f) velocity.X += 0.2f;
+        if (0f < velocity.X && velocity.X < 0.2f ) velocity.X = 0f;
+        if (0f > velocity.X && velocity.X > -0.2f) velocity.X = 0f;
+
+
         // Handle input for player movement and change state
         var keyboardState = Keyboard.GetState();
 
         // Example movement logic
         if (keyboardState.IsKeyDown(Keys.A))
         {
+            if (isFacingRight) velocity.X *= -1; // flip velocity if facing the wrog way
+
             velocity.X -= 5f;
             CurrentState = PlayerState.Walking;
             isFacingRight = false; // Facing left
         }
         else if (keyboardState.IsKeyDown(Keys.D))
         {
+            if (!isFacingRight) velocity.X *= -1; // flip velocity if facing the wrog way
+
             velocity.X += 5f;
             CurrentState = PlayerState.Walking;
             isFacingRight = true; // Facing right
@@ -71,6 +83,12 @@ public class Player
         {
             CurrentState = PlayerState.Idle;
         }
+
+        if (velocity.X > 10f) velocity.X = 5f;
+        if (velocity.X < -10f) velocity.X = -5f;
+
+        position.X += velocity.X;
+
 
         if (!grounded) CurrentState = PlayerState.Airborne;
 

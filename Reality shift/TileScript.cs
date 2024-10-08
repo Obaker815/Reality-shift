@@ -1,11 +1,19 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Reality_shift;
 using SharpDX.Direct2D1.Effects;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Security.AccessControl;
 
 
-internal class Tile
+public static class TileList
+{
+    public static List<Tile> tiles = new List<Tile>();
+}
+
+public class Tile
 {
     private Texture2D spritesheet;
     private Vector2 position;
@@ -22,6 +30,7 @@ internal class Tile
         this.position = position;
         this.frameWidth = frameWidth;
         this.frameHeight = frameheight;
+        TileList.tiles.Add(this);
     }
 
     public void CalculateTile(Color[,] load)

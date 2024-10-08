@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Reality_shift
 {
@@ -14,7 +16,7 @@ namespace Reality_shift
         private SpriteBatch _spriteBatch;
         private Texture2D _playerSpriteSheet;
         private Player player;
-        private float scale = 1f;  // Scale factor
+        private float scale = 0.5f;  // Scale factor
 
         public Game1()
         {
@@ -27,7 +29,6 @@ namespace Reality_shift
 
         protected override void Initialize()
         {
-
             Texture2D playerTexture = Content.Load<Texture2D>("blobby");
             player = new Player(playerTexture, new Vector2(50, 50), 140, 80, 2, 0.4f);
 
@@ -57,6 +58,7 @@ namespace Reality_shift
 
             player.Draw(_spriteBatch);
 
+
             _spriteBatch.End();
 
             base.Draw(gameTime);
@@ -66,6 +68,14 @@ namespace Reality_shift
         {
             CurrentLevel = Content.Load<Texture2D>(name);
             level = ConvertTextureTo2DArray(CurrentLevel);
+
+            for (int i = 0;  i < level.GetLength(0)-1; i++)
+            {
+                for (int j = 0; j < level.GetLength(1)-1; j++)
+                {
+                    
+                }
+            }
         }
 
 
