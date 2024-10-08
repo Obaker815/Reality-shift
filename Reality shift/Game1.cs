@@ -15,8 +15,8 @@ namespace Reality_shift
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
-            _graphics.PreferredBackBufferWidth = 1600;  // Set width to 160
-            _graphics.PreferredBackBufferHeight = 900;  // Set height to 90
+            _graphics.PreferredBackBufferWidth = 1600;
+            _graphics.PreferredBackBufferHeight = 900;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -24,7 +24,7 @@ namespace Reality_shift
         protected override void Initialize()
         {
             Texture2D playerTexture = Content.Load<Texture2D>("blobby");
-            player = new Player(playerTexture, new Vector2(50, 50), 140, 80, 2, 0.4f); // Adjust totalFrames as needed
+            player = new Player(playerTexture, new Vector2(50, 50), 140, 80, 2, 0.4f);
 
             base.Initialize();
         }

@@ -6,13 +6,15 @@ public enum PlayerState
 {
     Idle,
     Walking,
-    Jumping
+    Airborne
 }
 
 public class Player
 {
     private Texture2D spritesheet;
     private Vector2 position;
+
+    private Vector2 velocity;
 
     private int frameWidth;
     private int frameHeight;
@@ -23,12 +25,15 @@ public class Player
     private float elapsedTime;
 
     public PlayerState CurrentState { get; set; }
-    private bool isFacingRight; // New variable to track the facing direction
+    private bool isFacingRight;
+    private bool grounded;
 
     public Player(Texture2D texture, Vector2 startPosition, int frameWidth, int frameHeight, int totalFrames, float frameTime)
     {
         this.spritesheet = texture;
         this.position = startPosition;
+        this.velocity.X = 0f;
+        this.velocity.Y = 0f;
         this.frameWidth = frameWidth;
         this.frameHeight = frameHeight;
         this.totalFrames = totalFrames;
@@ -37,6 +42,7 @@ public class Player
         this.currentFrame = 0;
         this.CurrentState = PlayerState.Idle;
         this.isFacingRight = true; // Initially facing right
+        this.grounded = true;
     }
 
     public void Update(GameTime gameTime)
@@ -47,20 +53,26 @@ public class Player
         // Example movement logic
         if (keyboardState.IsKeyDown(Keys.A))
         {
-            position.X -= 5f;
+            velocity.X -= 5f;
             CurrentState = PlayerState.Walking;
             isFacingRight = false; // Facing left
         }
         else if (keyboardState.IsKeyDown(Keys.D))
         {
-            position.X += 5f;
+            velocity.X += 5f;
             CurrentState = PlayerState.Walking;
             isFacingRight = true; // Facing right
+        }
+        else if (keyboardState.IsKeyDown(Keys.Space))
+        {
+            velocity.Y += 10f;
         }
         else
         {
             CurrentState = PlayerState.Idle;
         }
+
+        if (!grounded) CurrentState = PlayerState.Airborne;
 
         // Update the animation frame timing
         elapsedTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
