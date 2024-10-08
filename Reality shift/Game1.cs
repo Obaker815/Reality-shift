@@ -15,8 +15,9 @@ namespace Reality_shift
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _playerSpriteSheet;
+        private Texture2D _tileSpriteSheet;
         private Player player;
-        private float scale = 0.5f;  // Scale factor
+        private float scale = 1f;  // Scale factor
 
         public Game1()
         {
@@ -39,6 +40,7 @@ namespace Reality_shift
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _playerSpriteSheet = Content.Load<Texture2D>("blobby");
+            _tileSpriteSheet = Content.Load<Texture2D>("Tilemap");
         }
 
         protected override void Update(GameTime gameTime)
@@ -52,12 +54,16 @@ namespace Reality_shift
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.Blue);
 
             _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(scale)); // Apply scaling
 
             player.Draw(_spriteBatch);
-
+            
+            for (int i =  0; i < TileList.tiles.Count-1; i++)
+            {
+                TileList.tiles[i].Draw(_spriteBatch);
+            }
 
             _spriteBatch.End();
 
@@ -73,7 +79,12 @@ namespace Reality_shift
             {
                 for (int j = 0; j < level.GetLength(1)-1; j++)
                 {
-                    
+
+                    if (level[i,j] == Color.Blue)
+                    {
+                        new Tile(_tileSpriteSheet, new Vector2(i * 10, j * 10), 10, 10, new string[]{ Convert.ToString(i), Convert.ToString(j) });
+                    }
+
                 }
             }
         }

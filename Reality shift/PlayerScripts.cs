@@ -14,7 +14,7 @@ public class Player
     private Texture2D spritesheet;
     private Vector2 position;
 
-    private Vector2 velocity;
+    private Vector2 velocity; // COMMITTING CRIMES WITH DIRECTION AND MAGNITUDE - OH YEAH
 
     private int frameWidth;
     private int frameHeight;
@@ -49,11 +49,11 @@ public class Player
     {
 
         // handle friction
-        if (velocity.X > 0f) velocity.X -= 0.2f;
-        if (velocity.X < 0f) velocity.X += 0.2f;
-        if (0f < velocity.X && velocity.X < 0.2f ) velocity.X = 0f;
+        if (0f < velocity.X && velocity.X < 0.2f) velocity.X = 0f;
         if (0f > velocity.X && velocity.X > -0.2f) velocity.X = 0f;
 
+        if (velocity.X > 0f) velocity.X -= 0.1f;
+        if (velocity.X < 0f) velocity.X += 0.1f;
 
         // Handle input for player movement and change state
         var keyboardState = Keyboard.GetState();
@@ -62,16 +62,16 @@ public class Player
         if (keyboardState.IsKeyDown(Keys.A))
         {
             if (isFacingRight) velocity.X *= -1; // flip velocity if facing the wrog way
+            if (velocity.X > -5f) velocity.X -= 1f;
 
-            velocity.X -= 5f;
             CurrentState = PlayerState.Walking;
             isFacingRight = false; // Facing left
         }
         else if (keyboardState.IsKeyDown(Keys.D))
         {
             if (!isFacingRight) velocity.X *= -1; // flip velocity if facing the wrog way
+            if (velocity.X < 5f) velocity.X += 1f;
 
-            velocity.X += 5f;
             CurrentState = PlayerState.Walking;
             isFacingRight = true; // Facing right
         }
@@ -84,11 +84,11 @@ public class Player
             CurrentState = PlayerState.Idle;
         }
 
-        if (velocity.X > 10f) velocity.X = 5f;
-        if (velocity.X < -10f) velocity.X = -5f;
+        // Hard cap velocity
+        if (velocity.X > 5f) velocity.X = 5f;
+        if (velocity.X < -5f) velocity.X = -5f;
 
         position.X += velocity.X;
-
 
         if (!grounded) CurrentState = PlayerState.Airborne;
 

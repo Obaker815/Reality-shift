@@ -1,11 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Reality_shift;
-using SharpDX.Direct2D1.Effects;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Security.AccessControl;
 
 
 public static class TileList
@@ -18,26 +14,26 @@ public class Tile
     private Texture2D spritesheet;
     private Vector2 position;
     private Color[,] level;
+    private string[] TexturePos;
 
     private int frameWidth;
     private int frameHeight;
     private int column;
     private int row;
         
-    public Tile(Texture2D spritesheet, Vector2 position, int frameWidth, int frameheight)
+    public Tile(Texture2D spritesheet, Vector2 position, int frameWidth, int frameheight, string[] levelPos)
     {
         this.spritesheet = spritesheet;
         this.position = position;
         this.frameWidth = frameWidth;
         this.frameHeight = frameheight;
+        this.TexturePos = levelPos;
         TileList.tiles.Add(this);
     }
 
     public void CalculateTile(Color[,] load)
     {
         this.level = load;
-
-
 
     }
 
