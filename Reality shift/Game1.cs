@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Reality_shift
 {
@@ -23,7 +22,7 @@ namespace Reality_shift
         {
             _graphics = new GraphicsDeviceManager(this);
             _graphics.PreferredBackBufferWidth = 1600;
-            _graphics.PreferredBackBufferHeight = 900;
+            _graphics.PreferredBackBufferHeight = 800;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -32,6 +31,7 @@ namespace Reality_shift
         {
             Texture2D playerTexture = Content.Load<Texture2D>("blobby");
             player = new Player(playerTexture, new Vector2(50, 50), 140, 80, 2, 0.4f);
+            TileList.bgColor = Color.Coral;
 
             base.Initialize();
         }
@@ -41,6 +41,8 @@ namespace Reality_shift
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _playerSpriteSheet = Content.Load<Texture2D>("blobby");
             _tileSpriteSheet = Content.Load<Texture2D>("Tilemap");
+
+            LoadLevel("Level0");
         }
 
         protected override void Update(GameTime gameTime)
@@ -48,21 +50,27 @@ namespace Reality_shift
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            for (int i = 0; i < TileList.tiles.Count; i++)
+            {
+                TileList.tiles[i].Update();
+            }
+
             player.Update(gameTime);
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Blue);
+            GraphicsDevice.Clear(TileList.bgColor);
 
             _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(scale)); // Apply scaling
 
             player.Draw(_spriteBatch);
-            
-            for (int i =  0; i < TileList.tiles.Count-1; i++)
+
+            // Draw all tiles
+            foreach (var tile in TileList.tiles)
             {
-                TileList.tiles[i].Draw(_spriteBatch);
+                tile.Draw(_spriteBatch);
             }
 
             _spriteBatch.End();
@@ -72,23 +80,33 @@ namespace Reality_shift
 
         public void LoadLevel(string name)
         {
-            CurrentLevel = Content.Load<Texture2D>(name);
+            // Load level from the Levels subdirectory
+            CurrentLevel = Content.Load<Texture2D>($"Levels/{name}");
             level = ConvertTextureTo2DArray(CurrentLevel);
 
-            for (int i = 0;  i < level.GetLength(0)-1; i++)
+            // Create tiles based on the level data
+            for (int i = 0; i < level.GetLength(0); i++)
             {
-                for (int j = 0; j < level.GetLength(1)-1; j++)
+                for (int j = 0; j < level.GetLength(1); j++)
                 {
-
-                    if (level[i,j] == Color.Blue)
+                    // Check for the specific color to create a tile
+                    if (level[i, j].R == 0 && level[i, j].G == 0 && level[i, j].B == 255)
                     {
-                        new Tile(_tileSpriteSheet, new Vector2(i * 10, j * 10), 10, 10, new string[]{ Convert.ToString(i), Convert.ToString(j) });
+                        new Tile(_tileSpriteSheet, new Vector2(i * 80, j * 80), 80, 80, new int[] { i, j }, 0);
                     }
-
+                    else if (level[i, j].R == 255 && level[i, j].G == 128 && level[i, j].B == 0)
+                    {
+                        new Tile(_tileSpriteSheet, new Vector2(i * 80, j * 80), 80, 80, new int[] { i, j }, 1);
+                    }
                 }
             }
-        }
 
+            for (int i = 0; i < TileList.tiles.Count; i++)
+            {
+                TileList.tiles[i].CalculateConnections(level);
+            }
+
+        }
 
         public Color[,] ConvertTextureTo2DArray(Texture2D texture)
         {
