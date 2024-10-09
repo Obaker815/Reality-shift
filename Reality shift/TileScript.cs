@@ -170,6 +170,7 @@ public class Tile
             if (goingUp)
             {
                 position.Y -= layerOffset;
+                nextPosition.Y -= layerOffset;
                 EDown = true;
                 goingUp = false;
                 TileList.bgColor = Color.MediumAquamarine;
@@ -177,6 +178,7 @@ public class Tile
             else
             {
                 position.Y += layerOffset;
+                nextPosition.Y += layerOffset;
                 EDown = true;
                 goingUp = true;
                 TileList.bgColor = Color.Coral;

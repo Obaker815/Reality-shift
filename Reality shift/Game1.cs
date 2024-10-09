@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Reality_shift
 {
@@ -20,6 +21,10 @@ namespace Reality_shift
 
         private Vector2 windowSize = new Vector2(1600, 800);
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool AllocConsole();
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -31,6 +36,7 @@ namespace Reality_shift
 
         protected override void Initialize()
         {
+            AllocConsole();
             Texture2D playerTexture = Content.Load<Texture2D>("blobby");
             player = new Player(playerTexture, new Vector2(50, 50), 140, 80, 2, 0.4f);
             TileList.bgColor = Color.Coral;
@@ -51,13 +57,13 @@ namespace Reality_shift
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
-            for (int i = 0; i < TileList.tiles.Count; i++)
+            player.Update(gameTime, windowSize);
+            foreach (Tile tile in TileList.tiles)
             {
-                TileList.tiles[i].Update();
+                tile.Update();
             }
 
-            player.Update(gameTime, windowSize);
+
             base.Update(gameTime);
         }
 
