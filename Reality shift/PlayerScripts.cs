@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Reality_shift;
 using System.Collections.Generic;
 
 public enum PlayerState
@@ -49,7 +50,7 @@ public class Player
         this.grounded = false;
     }
 
-    public void Update(GameTime gameTime)
+    public void Update(GameTime gameTime, Vector2 windowSize)
     {
         List<Tile> tiles = TileList.tiles;
 
@@ -103,8 +104,22 @@ public class Player
         if (velocity.X > 5f) velocity.X = 5f;
         if (velocity.X < -5f) velocity.X = -5f;
 
+        Vector2 nextPosition = Vector2.Zero;
+
         // Check for collision before updating position
-        Vector2 nextPosition = position + velocity;
+        if ((position.X > windowSize.X - 200 && isFacingRight) || (position.X < 200 && !isFacingRight))
+        {
+            foreach (Tile tile in TileList.tiles)
+            {
+                tile.NextPosition = new Vector2(tile.Position.X + velocity.X, tile.NextPosition.Y);
+            }
+        }
+        else
+        {
+            nextPosition.X = position.X + velocity.X;
+        }
+
+        nextPosition.Y = position.Y + velocity.Y;
 
         // Check for collision with tiles
         bool collisionX = false;
@@ -113,33 +128,33 @@ public class Player
         foreach (Tile tile in tiles)
         {
             Rectangle playerRect = new Rectangle((int)nextPosition.X, (int)nextPosition.Y, frameWidth, frameHeight);
-            Rectangle tileRect = new Rectangle((int)tile.Position.X, (int)tile.Position.Y, tile.FrameWidth, tile.FrameHeight);
+            Rectangle tileRect = new Rectangle((int)tile.NextPosition.X, (int)tile.NextPosition.Y, tile.FrameWidth, tile.FrameHeight);
 
             if (playerRect.Intersects(tileRect))
             {
                 // Check collision on X-axis
-                if (position.X < tile.Position.X && nextPosition.X + frameWidth > tile.Position.X) // Moving right
+                if (position.X < tile.NextPosition.X && nextPosition.X + frameWidth > tile.NextPosition.X) // Moving right
                 {
-                    nextPosition.X = tile.Position.X - frameWidth; // Stop at the tile's left edge
+                    nextPosition.X = tile.NextPosition.X - frameWidth; // Stop at the tile's left edge
                     collisionX = true;
                 }
-                else if (position.X > tile.Position.X && nextPosition.X < tile.Position.X + tile.FrameWidth) // Moving left
+                else if (position.X > tile.NextPosition.X && nextPosition.X < tile.NextPosition.X + tile.FrameWidth) // Moving left
                 {
-                    nextPosition.X = tile.Position.X + tile.FrameWidth; // Stop at the tile's right edge
+                    nextPosition.X = tile.NextPosition.X + tile.FrameWidth; // Stop at the tile's right edge
                     collisionX = true;
                 }
 
                 // Check collision on Y-axis
-                if (position.Y < tile.Position.Y && nextPosition.Y + frameHeight > tile.Position.Y) // Falling onto the tile
+                if (position.Y < tile.NextPosition.Y && nextPosition.Y + frameHeight > tile.NextPosition.Y) // Falling onto the tile
                 {
-                    nextPosition.Y = tile.Position.Y - frameHeight; // Stop at the tile's top edge
+                    nextPosition.Y = tile.NextPosition.Y - frameHeight; // Stop at the tile's top edge
                     collisionY = true;
                     grounded = true; // Player is on the ground
                     velocity.Y = 0; // Reset vertical velocity on landing
                 }
-                else if (position.Y > tile.Position.Y && nextPosition.Y < tile.Position.Y + tile.FrameHeight) // Hitting the bottom of the tile
+                else if (position.Y > tile.NextPosition.Y && nextPosition.Y < tile.NextPosition.Y + tile.FrameHeight) // Hitting the bottom of the tile
                 {
-                    nextPosition.Y = tile.Position.Y + tile.FrameHeight; // Stop at the tile's bottom edge
+                    nextPosition.Y = tile.NextPosition.Y + tile.FrameHeight; // Stop at the tile's bottom edge
                     collisionY = true;
                     velocity.Y = 0; // Reset vertical velocity on collision
                 }
@@ -149,11 +164,16 @@ public class Player
         // Only apply velocity if no collision
         if (!collisionX)
         {
-            position.X = nextPosition.X;
+            if (position.X < windowSize.X - 200 && position.X > 200)
+                position.X = nextPosition.X;
+            else
+            {
+                foreach (Tile tile in TileList.tiles)
+                {
+                    tile.Position = tile.NextPosition;
+                }
+            }
         }
-        // Removed the resetting of X velocity on landing
-        // velocity.X = 0; // Remove this line to retain X velocity
-
         if (!collisionY)
         {
             position.Y = nextPosition.Y;
@@ -173,7 +193,7 @@ public class Player
 
         foreach (Tile tile in tiles)
         {
-            Rectangle tileRect = new Rectangle((int)tile.Position.X, (int)tile.Position.Y, tile.FrameWidth, tile.FrameHeight);
+            Rectangle tileRect = new Rectangle((int)tile.NextPosition.X, (int)tile.NextPosition.Y, tile.FrameWidth, tile.FrameHeight);
             if (checkRect.Intersects(tileRect))
             {
                 hasPlatformBelow = true; // Found a platform below

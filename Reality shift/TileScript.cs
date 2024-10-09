@@ -16,6 +16,7 @@ public class Tile
 
     private Texture2D spritesheet;
     private Vector2 position;
+    private Vector2 nextPosition;
     private int[] TexturePos;
 
     private int layerOffset = 1200;
@@ -41,11 +42,13 @@ public class Tile
         this.TexturePos = levelPos;
 
         TileList.tiles.Add(this);
+        this.nextPosition = position;
     }
 
     public int FrameWidth { get { return frameWidth; } }
     public int FrameHeight { get { return frameHeight; } }
-    public Vector2 Position { get { return position; } }
+    public Vector2 Position { get { return position; } set { position = value; } }
+    public Vector2 NextPosition { get { return nextPosition; } set { nextPosition = value; } }
 
     public void CalculateConnections(Color[,] level)
     {

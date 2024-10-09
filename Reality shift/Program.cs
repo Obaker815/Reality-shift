@@ -1,3 +1,2 @@
-﻿
-using var game = new Reality_shift.Game1();
+﻿using var game = new Reality_shift.Game1();
 game.Run();

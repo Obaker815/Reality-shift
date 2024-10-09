@@ -18,6 +18,8 @@ namespace Reality_shift
         private Player player;
         private float scale = 1f;  // Scale factor
 
+        private Vector2 windowSize = new Vector2(1600, 800);
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -55,7 +57,7 @@ namespace Reality_shift
                 TileList.tiles[i].Update();
             }
 
-            player.Update(gameTime);
+            player.Update(gameTime, windowSize);
             base.Update(gameTime);
         }
 
@@ -136,5 +138,11 @@ namespace Reality_shift
 
             return colorArray;
         }
-    }
+
+        public Vector2 WindowSize
+        {
+            get { return windowSize; }
+        }
+    }   
+        
 }
