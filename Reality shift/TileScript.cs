@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
+using SharpDX.MediaFoundation;
 
 public static class TileList
 {
@@ -14,7 +15,7 @@ public class Tile
     Keys realityBind = Keys.LeftShift;
 
     private Texture2D spritesheet;
-    private Vector2 position; // This will be the tile's physical position
+    private Vector2 position;
     private int[] TexturePos;
 
     private int layerOffset = 1200;
@@ -34,7 +35,7 @@ public class Tile
     {
         this.alt = alt;
         this.spritesheet = spritesheet;
-        this.position = position; // Set initial position
+        this.position = position;
         this.frameWidth = frameWidth;
         this.frameHeight = frameHeight;
         this.TexturePos = levelPos;
@@ -157,11 +158,8 @@ public class Tile
         }
     }
 
-    public void Update(Vector2 cameraOffset)
+    public void Update()
     {
-        // Update the tile's position based on the camera offset
-        position -= cameraOffset; // Move tile according to camera
-
         var keyboardState = Keyboard.GetState();
 
         if (keyboardState.IsKeyDown(realityBind) && !EDown)
@@ -180,8 +178,8 @@ public class Tile
                 goingUp = true;
                 TileList.bgColor = Color.Coral;
             }
-        }
 
+        }
         if (EDown && !keyboardState.IsKeyDown(realityBind))
         {
             EDown = false;

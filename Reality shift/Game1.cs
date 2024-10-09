@@ -18,8 +18,6 @@ namespace Reality_shift
         private Player player;
         private float scale = 1f;  // Scale factor
 
-        private Vector2 cameraPosition; // New camera position variable
-
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -34,8 +32,6 @@ namespace Reality_shift
             Texture2D playerTexture = Content.Load<Texture2D>("blobby");
             player = new Player(playerTexture, new Vector2(50, 50), 140, 80, 2, 0.4f);
             TileList.bgColor = Color.Coral;
-
-            cameraPosition = Vector2.Zero; // Initialize camera position
 
             base.Initialize();
         }
@@ -54,17 +50,9 @@ namespace Reality_shift
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // Update camera position based on player position
-            if (player.Position.X > 100 && player.Position.X < GraphicsDevice.Viewport.Width - 100)
-            {
-                cameraPosition.X = player.Position.X - (GraphicsDevice.Viewport.Width / 2);
-            }
-            // Prevent camera from scrolling beyond level bounds (optional)
-            cameraPosition.X = MathHelper.Clamp(cameraPosition.X, 0, level.GetLength(0) * 80 - GraphicsDevice.Viewport.Width);
-
             for (int i = 0; i < TileList.tiles.Count; i++)
             {
-                TileList.tiles[i].Update(cameraPosition); // Pass the camera position
+                TileList.tiles[i].Update();
             }
 
             player.Update(gameTime);
@@ -75,7 +63,7 @@ namespace Reality_shift
         {
             GraphicsDevice.Clear(TileList.bgColor);
 
-            _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(-cameraPosition.X, 0, 0) * Matrix.CreateScale(scale)); // Apply camera offset
+            _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(scale)); // Apply scaling
 
             player.Draw(_spriteBatch);
 
@@ -117,6 +105,7 @@ namespace Reality_shift
             {
                 TileList.tiles[i].CalculateConnections(level);
             }
+
         }
 
         public Color[,] ConvertTextureTo2DArray(Texture2D texture)
