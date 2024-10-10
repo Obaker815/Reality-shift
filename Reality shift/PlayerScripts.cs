@@ -170,27 +170,27 @@ public class Player
     }
     // Only apply velocity if no collision
     if (!collision)
+    {
+        if (!collisionX)
         {
-            if (!collisionX)
+            if (scrolling)
             {
-                if (scrolling)
+                foreach (Tile tile in TileList.tiles)
                 {
-                    foreach (Tile tile in TileList.tiles)
-                    {
-                        tile.Position = tile.NextPosition;
-                    }
-                }
-                else
-                {
-                    position.X = nextPosition.X;
+                    tile.Position = tile.NextPosition;
                 }
             }
-            if (!collisionY)
+            else
             {
-                position.Y = nextPosition.Y;
+                position.X = nextPosition.X;
             }
         }
-    
+        if (!collisionY)
+        {
+            position.Y = nextPosition.Y;
+        }
+    }
+
     // Check if there is a platform 10 pixels below the player
     Rectangle checkRect = new Rectangle((int)position.X, (int)position.Y + frameHeight + 1, frameWidth, 1);
     bool hasPlatformBelow = false; // Track if there's a platform below
@@ -205,7 +205,7 @@ public class Player
         }
     }
 
-    // Set grounded status based on the presence of a tile 10 pixels below
+        // Set grounded status based on the presence of a tile 10 pixels below
     if (!hasPlatformBelow)
     {
         grounded = false; // Only unground if there's no tile below
