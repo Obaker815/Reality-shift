@@ -17,7 +17,7 @@ namespace Reality_shift
         private Texture2D _playerSpriteSheet;
         private Texture2D _tileSpriteSheet;
         private Player player;
-        private float scale = 1f;  // Scale factor
+        private float scale = 0.8f;  // Scale factor
 
         private Vector2 windowSize = new Vector2(1600, 800);
 
@@ -148,6 +148,10 @@ namespace Reality_shift
         public Vector2 WindowSize
         {
             get { return windowSize; }
+        }
+        public float Scale
+        {
+            get { return scale; }
         }
     }   
         

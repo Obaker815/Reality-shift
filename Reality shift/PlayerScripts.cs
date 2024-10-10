@@ -57,7 +57,7 @@ public class Player
         List<Tile> tiles = TileList.tiles;
         var keyboardState = Keyboard.GetState();
 
-        bool scrolling = (position.X > windowSize.X - 200 - frameWidth && isFacingRight) || (position.X < 200 && !isFacingRight);
+        bool scrolling = (position.X > (windowSize.X / 80 * 100) - 200 - frameWidth && isFacingRight) || (position.X < 200 && !isFacingRight);
 
         // Apply friction only if grounded
         if (grounded)
@@ -151,7 +151,6 @@ public class Player
                     collisionX = true;
                 }
 
-
                 // Check collision on Y-axis
                 if (nextPosition.Y < tile.NextPosition.Y && nextPosition.Y + frameHeight > tile.NextPosition.Y) // Falling onto the tile
                 {
@@ -191,8 +190,8 @@ public class Player
             }
         }
 
-        // Check if there is a platform 10 pixels below the player
-        Rectangle checkRect = new Rectangle((int)position.X, (int)position.Y + frameHeight + 1, frameWidth, 1);
+        // Check if there is a platform 1 pixel below the player
+        Rectangle checkRect = new Rectangle((int)position.X, (int)position.Y + frameHeight, frameWidth, 1);
         bool hasPlatformBelow = false; // Track if there's a platform below
 
         foreach (Tile tile in tiles)
