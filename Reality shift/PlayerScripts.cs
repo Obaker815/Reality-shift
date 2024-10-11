@@ -5,6 +5,7 @@ using Reality_shift;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.Eventing.Reader;
 
 public enum PlayerState
 {
@@ -35,13 +36,14 @@ public class Player
     public PlayerState CurrentState { get; set; }
     private bool isFacingRight;
     private bool grounded;
+    private bool lastFrameGrounded;
 
     public Player(Texture2D texture, Vector2 startPosition, int frameWidth, int frameHeight, int totalFrames, float frameTime)
     {
         this.spritesheet = texture;
-        this.position = startPosition;
+        this.position = new Vector2(startPosition.X + 30, startPosition.Y);
         this.velocity = Vector2.Zero;
-        this.frameWidth = frameWidth;
+        this.frameWidth = frameWidth - 60;
         this.frameHeight = frameHeight;
         this.totalFrames = totalFrames;
         this.frameTime = frameTime;
@@ -50,6 +52,7 @@ public class Player
         this.CurrentState = PlayerState.Idle;
         this.isFacingRight = true;
         this.grounded = false;
+        this.lastFrameGrounded = false;
     }
 
     public void Update(GameTime gameTime, Vector2 windowSize)
@@ -136,35 +139,17 @@ public class Player
 
             if (playerRect.Intersects(tileRect))
             {
-                Console.WriteLine(Convert.ToString(tile.Position.X), Convert.ToString(tile.Position.Y));
-                Console.WriteLine(Convert.ToString(tile.NextPosition.X), Convert.ToString(tile.NextPosition.Y));
+                float difRL = Math.Abs(nextPosition.X + frameWidth - tile.NextPosition.X);
+                float difLR = Math.Abs(nextPosition.X - tile.NextPosition.X - tile.FrameWidth);
+                float difBT = Math.Abs(nextPosition.Y + frameHeight - tile.NextPosition.Y);
+                float difTB = Math.Abs(nextPosition.Y - tile.NextPosition.X - tile.FrameHeight);
 
-                // Check collision on X-axis
-                if (nextPosition.X < tile.NextPosition.X && nextPosition.X + frameWidth > tile.NextPosition.X) // Moving right
-                {
-                    nextPosition.X = tile.NextPosition.X - frameWidth; // Stop at the tile's left edge
-                    collisionX = true;
-                }
-                else if (nextPosition.X > tile.NextPosition.X && nextPosition.X < tile.NextPosition.X + tile.FrameWidth) // Moving left
-                {
-                    nextPosition.X = tile.NextPosition.X + tile.FrameWidth; // Stop at the tile's right edge
-                    collisionX = true;
-                }
+                float minDif = Math.Min(Math.Min(Math.Min(difRL, difLR), difBT), difTB);
 
-                // Check collision on Y-axis
-                if (nextPosition.Y < tile.NextPosition.Y && nextPosition.Y + frameHeight > tile.NextPosition.Y) // Falling onto the tile
-                {
-                    nextPosition.Y = tile.NextPosition.Y - frameHeight; // Stop at the tile's top edge
-                    collisionY = true;
-                    grounded = true; // Player is on the ground
-                    velocity.Y = 0; // Reset vertical velocity on landing
-                }
-                else if (nextPosition.Y > tile.NextPosition.Y && nextPosition.Y < tile.NextPosition.Y + tile.FrameHeight) // Hitting the bottom of the tile
-                {
-                    nextPosition.Y = tile.NextPosition.Y + tile.FrameHeight; // Stop at the tile's bottom edge
-                    collisionY = true;
-                    velocity.Y = 0; // Reset vertical velocity on collision
-                }
+                if (minDif == difRL) nextPosition.X = tile.NextPosition.X - frameWidth;         collisionX = true;  velocity.X = 0;
+                if (minDif == difLR) nextPosition.X = tile.NextPosition.X + tile.FrameWidth;    collisionX = true;  velocity.X = 0;
+                if (minDif == difBT) nextPosition.Y = tile.NextPosition.Y - frameHeight;        collisionY = true;  velocity.Y = 0; grounded = true;
+                if (minDif == difTB) nextPosition.Y = tile.NextPosition.Y + tile.FrameHeight;   collisionY = true;  velocity.Y = 0; grounded = true;
             }
         }
         // Only apply velocity if no collision
@@ -216,6 +201,17 @@ public class Player
             CurrentState = PlayerState.Airborne;
         }
 
+        if (lastFrameGrounded && !grounded)
+        {
+            position.X += 30; frameWidth -= 60;
+            lastFrameGrounded = false;
+        } 
+        else if (!lastFrameGrounded && grounded)
+        {
+            position.X -= 30; frameWidth += 60;
+            lastFrameGrounded = true;
+        }
+
         // Update animation
         elapsedTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -235,7 +231,7 @@ public class Player
     {
         // Calculate the source rectangle for the current frame
         int column = (int)CurrentState; // Use enum value to determine column
-        Rectangle sourceRectangle = new Rectangle(column * frameWidth + 1, currentFrame * frameHeight + 1, frameWidth - 2, frameHeight - 2);
+        Rectangle sourceRectangle = new Rectangle(column * frameWidth + 1, currentFrame * frameHeight + 1, frameWidth -2, frameHeight -2);
 
         // Determine sprite effect based on the facing direction
         SpriteEffects spriteEffect = isFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
